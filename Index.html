@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#080c14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Turno PRO">
+<title>Turno PRO</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #080c14;
+  --s1: #0e1420;
+  --s2: #141c2c;
+  --s3: #1c2638;
+  --border: #1e2d45;
+  --blue: #4d9fff;
+  --blue2: #2d7fe0;
+  --green: #00e676;
+  --green2: #00b85a;
+  --red: #ff4757;
+  --yellow: #ffd32a;
+  --orange: #ff6b35;
+  --text: #e8edf5;
+  --muted: #4a5f7a;
+  --font: 'Space Grotesk', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); max-width: 480px; margin: 0 auto; position: relative; }
+
+/* ── SCREENS ── */
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  opacity: 0; pointer-events: none;
+  transform: translateX(30px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.screen.active {
+  opacity: 1; pointer-events: all; transform: translateX(0);
+}
+.screen.exit {
+  opacity: 0; transform: translateX(-30px);
+}
+
+/* ── HOME ── */
+#s-home {
+  justify-content: space-between;
+  padding: 0;
+}
+
+.home-top {
+  padding: 20px 20px 0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.app-logo {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--blue);
+  text-transform: uppercase;
+}
+
+.clock {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* BIG START BUTTON */
+.start-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  gap: 20px;
+}
+
+.btn-giant {
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s, box-shadow 0.15s;
+  position: relative;
+}
+
+.btn-giant::before {
+  content: '';
+  position: absolute; inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(var(--green), var(--blue), var(--green));
+  animation: spin 4s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.btn-giant::after {
+  content: '';
+  position: absolute; inset: 2px;
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+.btn-giant-inner {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--green2), #00d4aa);
+}
+
+.btn-giant.stop .btn-giant-inner {
+  background: linear-gradient(135deg, #c0392b, var(--red));
+}
+
+.btn-giant:active { transform: scale(0.96); }
+
+.btn-giant .big-icon { font-size: 2.8rem; }
+.btn-giant .big-label {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #000;
+  text-transform: uppercase;
+}
+
+.btn-giant.stop .big-label { color: #fff; }
+
+/* TIMER DISPLAY */
+.timer-display {
+  text-align: center;
+}
+
+.timer-big {
+  font-family: var(--mono);
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: var(--green);
+  text-shadow: 0 0 40px rgba(0,230,118,0.4);
+  letter-spacing: 4px;
+  line-height: 1;
+}
+
+.timer-sub {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 4px;
+  font-family: var(--mono);
+}
+
+/* KM STRIP */
+.km-strip {
+  background: var(--s1);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.km-strip-icon { font-size: 1.2rem; }
+
+.km-strip-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.km-strip-input::placeholder { color: var(--muted2); }
+.km-strip-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: var(--mono);
+}
+
+/* HOME BOTTOM STATS */
+.home-stats {
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.hs-box {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.hs-val {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.hs-label {
+  font-size: 0.55rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 3px;
+}
+
+/* HOME NAV */
+.home-nav {
+  padding: 12px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.hn-btn {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 8px;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  transition: border-color 0.2s;
+}
+
+.hn-btn:active { background: var(--s2); }
+.hn-btn .hn-ic { font-size: 1.3rem; }
+.hn-btn .hn-lb { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-family: var(--mono); }
+
+/* ── STEP INPUT SCREEN ── */
+#s-step {
+  justify-content: center;
+  align-items: center;
+  padding: 30px 24px;
+  gap: 0;
+}
+
+.step-back {
+  position: absolute;
+  top: 20px; left: 20px;
+  background: none; border: none;
+  color: var(--muted); font-size: 1.5rem;
+  cursor: pointer; padding: 8px;
+}
+
+.step-progress {
+  position: absolute;
+  top: 20px; right: 20px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.step-emoji {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.step-question {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.step-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 32px;
+  font-family: var(--mono);
+}
+
+.step-input-big {
+  width: 100%;
+  background: var(--s1);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 2.4rem;
+  font-weight: 700;
+  padding: 20px 24px;
+  outline: none;
+  text-align: center;
+  -webkit-appearance: none;
+  transition: border-color 0.2s;
+  margin-bottom: 16px;
+}
+
+.step-input-big:focus { border-color: var(--blue); }
+.step-input-big.green:focus { border-color: var(--green); }
+
+.step-result {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 24px;
+  min-height: 20px;
+}
+
+.step-result .highlight {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.btn-next {
+  width: 100%;
+  padding: 20px;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.1s;
+  background: linear-gradient(135deg, var(--blue2), #5b6ef5);
+  color: #fff;
+}
+
+.btn-next.green { background: linear-gradient(135deg, var(--green2), #00d4aa); color: #000; }
+.btn-next:active { transform: scale(0.98); }
+.btn-next:disabled { opacity: 0.4; }
+
+.btn-skip {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 12px;
+  text-decoration: underline;
+  margin-top: 4px;
+}
+
+/* PLATAFORMAS CHIPS */
+.plat-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.plat-chip {
+  background: var(--s1);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.plat-chip.active {
+  border-color: var(--blue);
+  background: rgba(77,159,255,0.1);
+}
+
+.plat-chip .pc-name {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.plat-chip input {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.plat-chip input::placeholder { color: var(--muted); font-size: 0.9rem; }
+
+/* RESULTADO FINAL */
+.resultado-card {
+  width: 100%;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.rc-lucro {
+  text-align: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+.rc-lucro-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; font-family: var(--mono); }
+.rc-lucro-val { font-family: var(--mono); font-size: 2.8rem; font-weight: 700; margin-top: 4px; }
+
+.rc-rows { display: flex; flex-direction: column; gap: 8px; }
+.rc-row { display: flex; justify-content: space-between; align-items: center; }
+.rc-row .rl { font-size: 0.8rem; color: var(--muted); }
+.rc-row .rv { font-family: var(--mono); font-size: 0.9rem; font-weight: 600; }
+
+/* ── PAINEL ── */
+#s-painel {
+  padding: 20px 16px 100px;
+}
+
+.painel-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+
+.painel-title {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--blue);
+  text-transform: uppercase;
+}
+
+.back-btn {
+  background: none; border: none;
+  color: var(--muted); font-size: 1.3rem;
+  cursor: pointer; padding: 4px;
+}
+
+.p-hero {
+  background: linear-gradient(135deg, var(--s1), var(--s2));
+  border: 1px solid var(--green2);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.p-hero-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; font-family: var(--mono); }
+.p-hero-val { font-family: var(--mono); font-size: 2.4rem; font-weight: 700; color: var(--green); text-shadow: 0 0 30px rgba(0,230,118,0.3); margin: 6px 0; }
+.p-hero-sub { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); }
+
+.p-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+.p-box {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.p-box .pl { font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-family: var(--mono); margin-bottom: 4px; }
+.p-box .pv { font-family: var(--mono); font-size: 1.2rem; font-weight: 700; }
+
+.p-section { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; font-family: var(--mono); margin: 16px 0 8px; display: flex; align-items: center; gap: 8px; }
+.p-section::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* SEMANA */
+.week-chart { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; align-items: flex-end; height: 80px; margin-bottom: 4px; }
+.wc { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.wb { width: 100%; border-radius: 4px 4px 0 0; background: var(--s3); min-height: 4px; }
+.wb.today { background: linear-gradient(var(--blue2), var(--green2)); box-shadow: 0 0 10px rgba(77,159,255,0.5); }
+.wb.good { background: var(--green2); }
+.wb.mid { background: var(--yellow); }
+.wb.low { background: var(--red); }
+.wl { font-size: 0.48rem; color: var(--muted); font-family: var(--mono); text-transform: uppercase; }
+.wv { font-size: 0.52rem; color: var(--muted); font-family: var(--mono); }
+
+/* META BAR */
+.meta-wrap { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+.meta-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.meta-lbl { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-family: var(--mono); }
+.meta-pct { font-family: var(--mono); font-size: 0.85rem; color: var(--blue); font-weight: 700; }
+.prog-bar { height: 8px; background: var(--s3); border-radius: 4px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--blue2), var(--green)); box-shadow: 0 0 10px rgba(77,159,255,0.4); transition: width 0.6s ease; }
+.meta-vals { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.65rem; color: var(--muted); font-family: var(--mono); }
+
+/* RANKING */
+.rank-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.rank-item:last-child { border-bottom: none; }
+.rank-pos { font-family: var(--mono); font-size: 1.1rem; width: 28px; text-align: center; }
+.rank-info { flex: 1; }
+.rank-name { font-size: 0.85rem; font-weight: 600; }
+.rank-sub { font-size: 0.62rem; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+.rank-val { font-family: var(--mono); font-size: 1rem; font-weight: 700; color: var(--green); }
+
+/* PLATAFORMAS PAINEL */
+.plat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.pb { background: var(--s1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 8px; text-align: center; }
+.pb.best { border-color: var(--green); background: rgba(0,230,118,0.05); }
+.pb .pb-n { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-family: var(--mono); margin-bottom: 4px; }
+.pb .pb-v { font-family: var(--mono); font-size: 0.95rem; font-weight: 700; }
+.pb.best .pb-v { color: var(--green); }
+
+/* PROJEÇÃO */
+.proj-box { background: linear-gradient(135deg, var(--s1), var(--s2)); border: 1px solid var(--blue2); border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 12px; }
+.proj-lbl { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; font-family: var(--mono); margin-bottom: 6px; }
+.proj-val { font-family: var(--mono); font-size: 1.8rem; font-weight: 700; color: var(--blue); }
+.proj-sub { font-size: 0.68rem; color: var(--muted); margin-top: 4px; font-family: var(--mono); }
+
+/* ── GASTOS ── */
+#s-gastos { padding: 20px 16px 100px; }
+
+.gasto-tipo-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.gt-btn {
+  background: var(--s1);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.gt-btn .gt-ic { font-size: 1.8rem; }
+.gt-btn .gt-lb { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-family: var(--mono); }
+.gt-btn.selected { border-color: var(--blue); background: rgba(77,159,255,0.1); }
+.gt-btn.selected .gt-lb { color: var(--blue); }
+
+.g-fields { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.gf { display: flex; flex-direction: column; gap: 5px; }
+.gf label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-family: var(--mono); }
+.gf input, .gf select {
+  background: var(--s1); border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: var(--mono); font-size: 1.1rem;
+  padding: 12px 14px; outline: none; width: 100%; -webkit-appearance: none;
+}
+.gf input:focus, .gf select:focus { border-color: var(--blue); }
+.gf select option { background: #0e1420; }
+.gf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* GASTOS HISTORICO */
+.g-hist-item {
+  background: var(--s1); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ghi-l .ghi-tipo { font-size: 0.6rem; color: var(--muted); font-family: var(--mono); text-transform: uppercase; }
+.ghi-l .ghi-desc { font-size: 0.85rem; font-weight: 600; margin-top: 2px; }
+.ghi-l .ghi-data { font-size: 0.62rem; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+.ghi-val { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; color: var(--red); }
+
+/* MANUTENÇÃO */
+.manut-item { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.manut-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.manut-nome { font-weight: 600; font-size: 0.9rem; }
+.manut-badge { font-size: 0.58rem; padding: 3px 10px; border-radius: 20px; font-family: var(--mono); font-weight: 700; text-transform: uppercase; }
+.mb-ok { background: rgba(0,230,118,0.15); color: var(--green); }
+.mb-warn { background: rgba(255,211,42,0.15); color: var(--yellow); }
+.mb-crit { background: rgba(255,71,87,0.15); color: var(--red); }
+.manut-bar { height: 6px; background: var(--s3); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+.manut-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+.manut-info { display: flex; justify-content: space-between; font-size: 0.62rem; color: var(--muted); font-family: var(--mono); }
+
+/* ANÁLISE */
+#s-analise { padding: 20px 16px 100px; }
+
+/* TOAST */
+.toast {
+  position: fixed; top: 16px; left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: var(--s2); border: 1px solid var(--blue2);
+  border-radius: 10px; padding: 12px 20px;
+  font-family: var(--mono); font-size: 0.82rem; font-weight: 600;
+  letter-spacing: 1px; z-index: 999;
+  transition: transform 0.3s ease;
+  max-width: 300px; text-align: center; color: var(--blue);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.ok { border-color: var(--green); color: var(--green); }
+.toast.err { border-color: var(--red); color: var(--red); }
+.toast.warn { border-color: var(--yellow); color: var(--yellow); }
+
+.vazio { text-align: center; color: var(--muted); padding: 24px; font-size: 0.85rem; }
+
+/* IOS HINT */
+.ios-bar {
+  background: rgba(77,159,255,0.1);
+  border-bottom: 1px solid var(--blue2);
+  padding: 10px 16px;
+  font-size: 0.72rem;
+  color: var(--blue);
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════════ SCREEN: HOME ════════ -->
+<div class="screen active" id="s-home">
+  <div id="iosBar" style="display:none" class="ios-bar">
+    📱 Safari → Compartilhar → "Adicionar à Tela de Início"
+  </div>
+
+  <div class="home-top">
+    <div class="app-logo">🚗 Turno PRO</div>
+    <div class="clock" id="clock">--:--</div>
+  </div>
+
+  <!-- TURNO INATIVO -->
+  <div id="homeInativo">
+    <div class="start-zone">
+      <div class="timer-display">
+        <div class="timer-big" style="color:var(--muted);font-size:1.4rem;letter-spacing:2px">PRONTO PARA RODAR</div>
+        <div class="timer-sub">Informe o KM e inicie o turno</div>
+      </div>
+
+      <div style="width:100%;padding:0 10px">
+        <div class="km-strip" style="border-radius:14px;border:1px solid var(--border)">
+          <span class="km-strip-icon">🚗</span>
+          <div style="flex:1">
+            <div class="km-strip-label">KM Inicial (odômetro)</div>
+            <input class="km-strip-input" type="number" id="kmInicial" placeholder="ex: 45230" inputmode="numeric">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-giant" onclick="iniciarTurno()" id="btnGiant">
+        <div class="btn-giant-inner">
+          <div class="big-icon">▶</div>
+          <div class="big-label">Iniciar</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- TURNO ATIVO -->
+  <div id="homeAtivo" style="display:none">
+    <div class="start-zone">
+      <div class="timer-display">
+        <div class="timer-big" id="timerBig">00:00:00</div>
+        <div class="timer-sub" id="timerSub">Iniciado às --:--</div>
+      </div>
+
+      <button class="btn-giant stop" onclick="irEncerrar()" id="btnStop">
+        <div class="btn-giant-inner">
+          <div class="big-icon">⏹</div>
+          <div class="big-label">Encerrar</div>
+        </div>
+      </button>
+    </div>
+
+    <div class="km-strip">
+      <span class="km-strip-icon">📍</span>
+      <div style="flex:1">
+        <div class="km-strip-label">KM Atual (odômetro)</div>
+        <input class="km-strip-input" type="number" id="kmAtualHome" placeholder="atualize aqui" inputmode="numeric">
+      </div>
+      <div style="text-align:right">
+        <div class="km-strip-label">Rodados</div>
+        <div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--blue)" id="kmRodadosLive">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS RÁPIDOS -->
+  <div class="home-stats" id="homeStats"></div>
+
+  <!-- NAVEGAÇÃO -->
+  <div class="home-nav">
+    <button class="hn-btn" onclick="goScreen('s-painel')">
+      <span class="hn-ic">📊</span><span class="hn-lb">Painel</span>
+    </button>
+    <button class="hn-btn" onclick="goScreen('s-gastos')">
+      <span class="hn-ic">⛽</span><span class="hn-lb">Gastos</span>
+    </button>
+    <button class="hn-btn" onclick="goScreen('s-analise')">
+      <span class="hn-ic">🔍</span><span class="hn-lb">Análise</span>
+    </button>
+  </div>
+</div>
+
+<!-- ════════ SCREEN: STEP INPUT ════════ -->
+<div class="screen" id="s-step">
+  <button class="step-back" onclick="stepBack()">←</button>
+  <div class="step-progress" id="stepProgress">1 / 3</div>
+
+  <div class="step-emoji" id="stepEmoji">🏁</div>
+  <div class="step-question" id="stepQuestion">Qual o KM final?</div>
+  <div class="step-hint" id="stepHint">Olhe o odômetro do carro</div>
+
+  <!-- Input numérico simples -->
+  <div id="stepInputWrap" style="width:100%">
+    <input class="step-input-big" type="number" id="stepInput" inputmode="decimal" placeholder="0" autocomplete="off">
+    <div class="step-result" id="stepResult"></div>
+  </div>
+
+  <!-- Plataformas (step especial) -->
+  <div id="stepPlatWrap" style="width:100%;display:none">
+    <div class="plat-chips">
+      <div class="plat-chip" id="chip99">
+        <div class="pc-name">99</div>
+        <input type="number" id="p99" placeholder="R$0" inputmode="decimal" step="0.01" oninput="calcStep()">
+      </div>
+      <div class="plat-chip" id="chipUber">
+        <div class="pc-name">Uber</div>
+        <input type="number" id="pUber" placeholder="R$0" inputmode="decimal" step="0.01" oninput="calcStep()">
+      </div>
+      <div class="plat-chip" id="chipInd">
+        <div class="pc-name">InDrive</div>
+        <input type="number" id="pInd" placeholder="R$0" inputmode="decimal" step="0.01" oninput="calcStep()">
+      </div>
+    </div>
+    <div class="step-result" id="stepResultPlat"></div>
+  </div>
+
+  <!-- Resultado final (step especial) -->
+  <div id="stepResultadoWrap" style="width:100%;display:none">
+    <div class="resultado-card">
+      <div class="rc-lucro">
+        <div class="rc-lucro-label">Lucro Líquido</div>
+        <div class="rc-lucro-val" id="rcLiq">R$ 0,00</div>
+      </div>
+      <div class="rc-rows">
+        <div class="rc-row"><span class="rl">Bruto total</span><span class="rv" id="rcBruto">—</span></div>
+        <div class="rc-row"><span class="rl">KM rodados</span><span class="rv" id="rcKm">—</span></div>
+        <div class="rc-row"><span class="rl">Custo combustível</span><span class="rv" style="color:var(--red)" id="rcComb">—</span></div>
+        <div class="rc-row"><span class="rl">Custo desgaste</span><span class="rv" style="color:var(--red)" id="rcDesg">—</span></div>
+        <div class="rc-row"><span class="rl">R$/hora</span><span class="rv" id="rcRH">—</span></div>
+        <div class="rc-row"><span class="rl">Horas trabalhadas</span><span class="rv" id="rcHoras">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-next" id="btnNext" onclick="stepNext()">PRÓXIMO →</button>
+  <button class="btn-skip" id="btnSkip" onclick="stepSkip()" style="display:none">Pular (zero)</button>
+</div>
+
+<!-- ════════ SCREEN: PAINEL ════════ -->
+<div class="screen" id="s-painel">
+  <div class="painel-header">
+    <div class="painel-title">📊 Painel</div>
+    <button class="back-btn" onclick="goScreen('s-home')">✕</button>
+  </div>
+
+  <div class="meta-wrap">
+    <div class="meta-top"><span class="meta-lbl">Meta mensal</span><span class="meta-pct" id="metaPct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="meta-vals"><span id="metaAtual">R$ 0,00</span><span id="metaAlvo">meta: R$ 4.000,00</span></div>
+  </div>
+
+  <div class="p-hero">
+    <div class="p-hero-label">💰 Lucro Líquido — Mês</div>
+    <div class="p-hero-val" id="pLiqMes">R$ 0,00</div>
+    <div class="p-hero-sub" id="pMediaTurno">— sem turnos este mês</div>
+  </div>
+
+  <div class="p-grid">
+    <div class="p-box"><div class="pl">Bruto mês</div><div class="pv" id="pBrutoMes">R$ 0</div></div>
+    <div class="p-box"><div class="pl">Custo mês</div><div class="pv" style="color:var(--red)" id="pCustoMes">R$ 0</div></div>
+    <div class="p-box"><div class="pl">Turnos</div><div class="pv" id="pNTurnos">0</div></div>
+    <div class="p-box"><div class="pl">KM mês</div><div class="pv" id="pKmMes">0</div></div>
+    <div class="p-box"><div class="pl">R$/hora médio</div><div class="pv" id="pRHora">R$ 0</div></div>
+    <div class="p-box"><div class="pl">Liq. hoje</div><div class="pv" id="pHoje">R$ 0</div></div>
+  </div>
+
+  <div id="projBox" style="display:none" class="proj-box">
+    <div class="proj-lbl">📈 Projeção do mês</div>
+    <div class="proj-val" id="projVal">R$ 0,00</div>
+    <div class="proj-sub" id="projSub">baseado nos últimos 7 dias</div>
+  </div>
+
+  <div class="p-section">Últimos 7 dias</div>
+  <div class="week-chart" id="weekChart"></div>
+
+  <div id="platSection" style="display:none">
+    <div class="p-section">Plataformas — mês</div>
+    <div class="plat-row" id="platRow"></div>
+  </div>
+
+  <div id="rankDiaSection" style="display:none">
+    <div class="p-section">Melhor dia da semana</div>
+    <div id="rankDiaLista"></div>
+  </div>
+</div>
+
+<!-- ════════ SCREEN: GASTOS ════════ -->
+<div class="screen" id="s-gastos">
+  <div class="painel-header">
+    <div class="painel-title">⛽ Gastos</div>
+    <button class="back-btn" onclick="goScreen('s-home')">✕</button>
+  </div>
+
+  <div class="gasto-tipo-grid">
+    <button class="gt-btn selected" id="gt-comb" onclick="selTipo('combustivel',this)">
+      <span class="gt-ic">⛽</span><span class="gt-lb">Combustível</span>
+    </button>
+    <button class="gt-btn" id="gt-manut" onclick="selTipo('manutencao',this)">
+      <span class="gt-ic">🔧</span><span class="gt-lb">Manutenção</span>
+    </button>
+    <button class="gt-btn" id="gt-outros" onclick="selTipo('outros',this)">
+      <span class="gt-ic">📦</span><span class="gt-lb">Outros</span>
+    </button>
+  </div>
+
+  <div class="g-fields">
+    <div class="gf-row">
+      <div class="gf">
+        <label>Valor (R$)</label>
+        <input type="number" id="gValor" placeholder="0,00" step="0.01" inputmode="decimal">
+      </div>
+      <div class="gf">
+        <label>Data</label>
+        <input type="date" id="gData">
+      </div>
+    </div>
+    <div id="gCombFields">
+      <div class="gf-row">
+        <div class="gf">
+          <label>Litros</label>
+          <input type="number" id="gLitros" placeholder="ex: 30" step="0.1" inputmode="decimal">
+        </div>
+        <div class="gf">
+          <label>R$/litro</label>
+          <input type="number" id="gPrecoL" placeholder="ex: 4.20" step="0.01" inputmode="decimal">
+        </div>
+      </div>
+    </div>
+    <div class="gf" id="gDescField" style="display:none">
+      <label>Descrição</label>
+      <input type="text" id="gDesc" placeholder="ex: Troca de óleo">
+    </div>
+  </div>
+
+  <button class="btn-next" onclick="registrarGasto()">+ REGISTRAR</button>
+
+  <div class="p-section" style="margin-top:20px">Histórico</div>
+  <div id="gastoLista"><div class="vazio">Nenhum gasto registrado.</div></div>
+</div>
+
+<!-- ════════ SCREEN: ANÁLISE ════════ -->
+<div class="screen" id="s-analise">
+  <div class="painel-header">
+    <div class="painel-title">🔍 Análise</div>
+    <button class="back-btn" onclick="goScreen('s-home')">✕</button>
+  </div>
+
+  <div class="p-hero">
+    <div class="p-hero-label">R$/hora médio — mês</div>
+    <div class="p-hero-val" id="anRHora">R$ 0,00</div>
+    <div class="p-hero-sub" id="anRHoraSub">—</div>
+  </div>
+
+  <div class="p-grid">
+    <div class="p-box"><div class="pl">Melhor turno R$/h</div><div class="pv" style="color:var(--green)" id="anMelhor">—</div></div>
+    <div class="p-box"><div class="pl">Pior turno R$/h</div><div class="pv" style="color:var(--red)" id="anPior">—</div></div>
+    <div class="p-box"><div class="pl">Horas totais</div><div class="pv" id="anHoras">0h</div></div>
+    <div class="p-box"><div class="pl">KM total mês</div><div class="pv" id="anKm">0</div></div>
+  </div>
+
+  <div class="p-section">Ranking — dias da semana</div>
+  <div id="rankDiaAnalise"><div class="vazio">Mínimo 5 turnos.</div></div>
+
+  <div class="p-section">Ranking — plataformas</div>
+  <div id="rankPlatAnalise"><div class="vazio">Sem dados este mês.</div></div>
+
+  <div class="p-section" style="display:flex;justify-content:space-between">
+    <span>🔧 Manutenção preventiva</span>
+    <button onclick="resetManutencao()" style="background:none;border:none;color:var(--muted);font-size:0.7rem;cursor:pointer;font-family:var(--mono)">Reset km</button>
+  </div>
+  <div id="manutLista"></div>
+</div>
+
+<script>
+// ═══════ CONSTANTS ═══════
+const KM_L = 13.5;
+const MANUT_KM = 0.12;
+const DIAS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const MANUT_ITENS = [
+  {nome:'Troca de Óleo', km:5000, chave:'oleo'},
+  {nome:'Filtro de Ar',  km:10000, chave:'filtroAr'},
+  {nome:'Velas',         km:20000, chave:'velas'},
+  {nome:'Revisão Geral', km:15000, chave:'revisao'},
+];
+
+// ═══════ STATE ═══════
+let cfg   = JSON.parse(localStorage.getItem('cfg_t2')    || '{"meta":4000,"comb":4.20}');
+let turnos = JSON.parse(localStorage.getItem('turnos_t2') || '[]');
+let gastos = JSON.parse(localStorage.getItem('gastos_t2') || '[]');
+let turnoAtivo = JSON.parse(localStorage.getItem('turno_ativo_t2') || 'null');
+let timerInt = null;
+
+// Step flow state
+let stepFlow = [];
+let stepIdx  = 0;
+let stepData = {};
+
+// ═══════ UTILS ═══════
+const $ = id => document.getElementById(id);
+const fmt  = v => 'R$ ' + (+v).toFixed(2).replace('.',',');
+const fmtK = v => (+v).toFixed(0) + ' km';
+function mesAtualStr(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function hojeStr(){ return new Date().toDateString(); }
+function turnosMes(){ return turnos.filter(t => t.mesAno === mesAtualStr()); }
+function custoKm(){ return cfg.comb / KM_L; }
+
+function showToast(msg, type=''){
+  const t = $('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ═══════ SCREEN NAV ═══════
+function goScreen(id){
+  document.querySelectorAll('.screen').forEach(s => {
+    if(s.classList.contains('active')){ s.classList.add('exit'); s.classList.remove('active'); setTimeout(()=>s.classList.remove('exit'),300); }
+  });
+  const target = $(id);
+  setTimeout(() => { target.style.transform='translateX(30px)'; target.classList.add('active'); }, 30);
+  if(id==='s-painel')  renderPainel();
+  if(id==='s-gastos')  renderGastos();
+  if(id==='s-analise') renderAnalise();
+}
+
+// ═══════ CLOCK ═══════
+setInterval(()=>{
+  $('clock').textContent = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  if(turnoAtivo) atualizarTimer();
+},1000);
+
+// ═══════ TURNO ═══════
+function iniciarTurno(){
+  const kmI = parseFloat($('kmInicial').value) || 0;
+  if(kmI <= 0){ showToast('Informe o KM do odômetro','err'); return; }
+  const now = new Date();
+  turnoAtivo = {
+    kmInicial: kmI,
+    horaInicio: now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+    startMs: now.getTime(),
+    data: hojeStr(),
+    mesAno: mesAtualStr()
+  };
+  localStorage.setItem('turno_ativo_t2', JSON.stringify(turnoAtivo));
+  renderHomeAtivo();
+  showToast('Turno iniciado! Boas corridas 🚗','ok');
+}
+
+function renderHomeAtivo(){
+  if(turnoAtivo){
+    $('homeInativo').style.display = 'none';
+    $('homeAtivo').style.display   = 'block';
+    $('timerSub').textContent = `Iniciado às ${turnoAtivo.horaInicio} · KM ini: ${turnoAtivo.kmInicial}`;
+    atualizarTimer();
+  } else {
+    $('homeInativo').style.display = 'block';
+    $('homeAtivo').style.display   = 'none';
+  }
+  renderHomeStats();
+}
+
+function atualizarTimer(){
+  if(!turnoAtivo) return;
+  const diff = Date.now() - turnoAtivo.startMs;
+  const h = Math.floor(diff/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  const el = $('timerBig');
+  if(el) el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+  const kmA = parseFloat($('kmAtualHome').value)||0;
+  const kmRod = kmA - turnoAtivo.kmInicial;
+  $('kmRodadosLive').textContent = kmRod > 0 ? fmtK(kmRod) : '—';
+}
+
+function irEncerrar(){
+  if(!turnoAtivo){ showToast('Nenhum turno ativo','err'); return; }
+  // Inicia o flow de encerramento
+  stepData = { kmInicial: turnoAtivo.kmInicial };
+  stepFlow = [
+    { emoji:'🏁', question:'KM final do odômetro?', hint:'Olhe o painel do carro', field:'kmFinal', type:'number', skip:false },
+    { emoji:'💰', question:'Quanto cada app pagou?', hint:'Some todas as corridas do turno', field:'receitas', type:'plat', skip:false },
+    { emoji:'✅', question:'Confira e confirme', hint:'', field:'confirmar', type:'resultado', skip:false },
+  ];
+  stepIdx = 0;
+  renderStep();
+  goScreen('s-step');
+}
+
+// ═══════ STEP FLOW ═══════
+function renderStep(){
+  const step = stepFlow[stepIdx];
+  $('stepProgress').textContent = `${stepIdx+1} / ${stepFlow.length}`;
+  $('stepEmoji').textContent = step.emoji;
+  $('stepQuestion').textContent = step.question;
+  $('stepHint').textContent = step.hint;
+  $('stepInput').value = '';
+  $('stepResult').textContent = '';
+  $('btnSkip').style.display = step.skip ? 'block' : 'none';
+
+  $('stepInputWrap').style.display = 'none';
+  $('stepPlatWrap').style.display  = 'none';
+  $('stepResultadoWrap').style.display = 'none';
+
+  if(step.type === 'number'){
+    $('stepInputWrap').style.display = 'block';
+    $('stepInput').focus();
+    $('stepInput').oninput = calcStep;
+    $('btnNext').textContent = stepIdx < stepFlow.length-1 ? 'PRÓXIMO →' : '✓ CONFIRMAR';
+    $('btnNext').className = stepIdx === stepFlow.length-1 ? 'btn-next green' : 'btn-next';
+  } else if(step.type === 'plat'){
+    $('stepPlatWrap').style.display = 'block';
+    $('p99').value=''; $('pUber').value=''; $('pInd').value='';
+    $('stepResultPlat').textContent='';
+    $('btnNext').textContent = 'PRÓXIMO →';
+    $('btnNext').className = 'btn-next';
+    setTimeout(()=>$('p99').focus(), 100);
+  } else if(step.type === 'resultado'){
+    $('stepResultadoWrap').style.display = 'block';
+    $('btnNext').textContent = '✓ SALVAR TURNO';
+    $('btnNext').className = 'btn-next green';
+    calcResultado();
+  }
+}
+
+function calcStep(){
+  const step = stepFlow[stepIdx];
+  if(step.type === 'number' && step.field === 'kmFinal'){
+    const kmF = parseFloat($('stepInput').value)||0;
+    const kmRod = Math.max(0, kmF - stepData.kmInicial);
+    if(kmRod > 0){
+      const custo = kmRod * (custoKm() + MANUT_KM);
+      $('stepResult').innerHTML = `<span class="highlight">${fmtK(kmRod)} rodados</span> · custo estimado: ${fmt(custo)}`;
+    }
+  }
+}
+
+function calcPlatStep(){
+  const r99   = parseFloat($('p99').value)||0;
+  const rUber = parseFloat($('pUber').value)||0;
+  const rInd  = parseFloat($('pInd').value)||0;
+  const total = r99+rUber+rInd;
+  $('stepResultPlat').innerHTML = total > 0 ? `Total bruto: <span class="highlight">${fmt(total)}</span>` : '';
+}
+
+function calcResultado(){
+  const kmF   = stepData.kmFinal || 0;
+  const r99   = stepData.r99   || 0;
+  const rUber = stepData.rUber || 0;
+  const rInd  = stepData.rInd  || 0;
+  const bruto = r99 + rUber + rInd;
+  const kmRod = Math.max(0, kmF - stepData.kmInicial);
+  const custoComb  = kmRod * custoKm();
+  const custoManut = kmRod * MANUT_KM;
+  const custo = custoComb + custoManut;
+  const liq   = bruto - custo;
+  const horas = turnoAtivo ? (Date.now() - turnoAtivo.startMs) / 3600000 : 0;
+  const rHora = horas > 0 ? liq / horas : 0;
+
+  const liqColor = liq >= cfg.meta/26 ? 'var(--green)' : liq >= 0 ? 'var(--yellow)' : 'var(--red)';
+  $('rcLiq').textContent  = fmt(liq);
+  $('rcLiq').style.color  = liqColor;
+  $('rcBruto').textContent = fmt(bruto);
+  $('rcKm').textContent    = fmtK(kmRod);
+  $('rcComb').textContent  = fmt(custoComb);
+  $('rcDesg').textContent  = fmt(custoManut);
+  $('rcRH').textContent    = fmt(rHora);
+  $('rcHoras').textContent = horas.toFixed(1) + 'h';
+
+  stepData._calc = { bruto, kmRod, custoComb, custoManut, custo, liq, horas, rHora };
+}
+
+function stepNext(){
+  const step = stepFlow[stepIdx];
+
+  if(step.type === 'number'){
+    const val = parseFloat($('stepInput').value) || 0;
+    if(step.field === 'kmFinal' && val <= stepData.kmInicial){
+      showToast('KM final deve ser maior que o inicial','err'); return;
+    }
+    stepData[step.field] = val;
+  } else if(step.type === 'plat'){
+    stepData.r99   = parseFloat($('p99').value)   || 0;
+    stepData.rUber = parseFloat($('pUber').value)  || 0;
+    stepData.rInd  = parseFloat($('pInd').value)   || 0;
+    if(stepData.r99 + stepData.rUber + stepData.rInd <= 0){
+      showToast('Informe a receita de pelo menos uma plataforma','err'); return;
+    }
+  } else if(step.type === 'resultado'){
+    salvarTurno(); return;
+  }
+
+  stepIdx++;
+  if(stepIdx < stepFlow.length) renderStep();
+}
+
+function stepSkip(){
+  stepData[stepFlow[stepIdx].field] = 0;
+  stepIdx++;
+  if(stepIdx < stepFlow.length) renderStep();
+}
+
+function stepBack(){
+  if(stepIdx > 0){ stepIdx--; renderStep(); }
+  else { goScreen('s-home'); }
+}
+
+function salvarTurno(){
+  if(!turnoAtivo){ showToast('Erro: nenhum turno ativo','err'); return; }
+  const c = stepData._calc;
+  if(!c){ showToast('Erro no cálculo','err'); return; }
+
+  const now = new Date();
+  const turno = {
+    id: Date.now(),
+    data: turnoAtivo.data, mesAno: turnoAtivo.mesAno,
+    diaSemana: new Date(turnoAtivo.data).getDay(),
+    horaInicio: turnoAtivo.horaInicio,
+    horaFim: now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+    horaInicioNum: parseInt(turnoAtivo.horaInicio),
+    kmInicial: stepData.kmInicial, kmFinal: stepData.kmFinal, kmRodados: c.kmRod,
+    r99: stepData.r99, rUber: stepData.rUber, rInd: stepData.rInd,
+    bruto: c.bruto, custoComb: c.custoComb, custoManut: c.custoManut,
+    custo: c.custo, liq: c.liq, horas: c.horas, rHora: c.rHora
+  };
+
+  turnos.push(turno);
+  localStorage.setItem('turnos_t2', JSON.stringify(turnos));
+  turnoAtivo = null;
+  localStorage.removeItem('turno_ativo_t2');
+
+  atualizarKmManutencao(stepData.kmFinal);
+  showToast(`Turno salvo! Líquido: ${fmt(c.liq)}`,'ok');
+  if(c.liq >= cfg.meta/26*1.5) setTimeout(()=>showToast('🔥 Turno excelente!','ok'),1500);
+
+  goScreen('s-home');
+  renderHomeAtivo();
+}
+
+function renderHomeStats(){
+  const hoje = turnos.filter(t => t.data === hojeStr());
+  const mes  = turnosMes();
+  const liqH = hoje.reduce((s,t)=>s+t.liq,0);
+  const liqM = mes.reduce((s,t)=>s+t.liq,0);
+  const nM   = mes.length;
+  $('homeStats').innerHTML = `
+    <div class="hs-box"><div class="hs-val" style="color:var(--green)">${fmt(liqH).replace('R$ ','R$')}</div><div class="hs-label">Hoje</div></div>
+    <div class="hs-box"><div class="hs-val">${fmt(liqM).replace('R$ ','R$')}</div><div class="hs-label">Mês</div></div>
+    <div class="hs-box"><div class="hs-val">${nM}</div><div class="hs-label">Turnos mês</div></div>
+  `;
+}
+
+// ═══════ PAINEL ═══════
+function renderPainel(){
+  const mes = turnosMes();
+  const n   = mes.length;
+  const tB  = mes.reduce((s,t)=>s+t.bruto,0);
+  const tC  = mes.reduce((s,t)=>s+t.custo,0);
+  const tL  = mes.reduce((s,t)=>s+t.liq,0);
+  const tK  = mes.reduce((s,t)=>s+t.kmRodados,0);
+  const tH  = mes.reduce((s,t)=>s+t.horas,0);
+  const rH  = tH>0 ? tL/tH : 0;
+  const pct = Math.min(100, Math.round(tL/cfg.meta*100));
+  const hoje = turnos.filter(t=>t.data===hojeStr()).reduce((s,t)=>s+t.liq,0);
+
+  $('pLiqMes').textContent   = fmt(tL);
+  $('pBrutoMes').textContent = fmt(tB);
+  $('pCustoMes').textContent = fmt(tC);
+  $('pNTurnos').textContent  = n;
+  $('pKmMes').textContent    = tK.toFixed(0)+' km';
+  $('pRHora').textContent    = fmt(rH);
+  $('pHoje').textContent     = fmt(hoje);
+  $('pMediaTurno').textContent = n>0 ? `Média ${fmt(tL/n)} líquido/turno` : '— sem turnos';
+  $('metaPct').textContent   = pct+'%';
+  $('progFill').style.width  = pct+'%';
+  $('metaAtual').textContent = fmt(tL);
+  $('metaAlvo').textContent  = `meta: ${fmt(cfg.meta)}`;
+
+  // Projeção
+  const ult7 = turnos.filter(t=>{const d=new Date();d.setDate(d.getDate()-7);return new Date(t.data)>=d;});
+  if(ult7.length>=3){
+    const med = ult7.reduce((s,t)=>s+t.liq,0)/ult7.length;
+    $('projBox').style.display='block';
+    $('projVal').textContent = fmt(med*26);
+    $('projSub').textContent = `${fmt(med)}/turno × 26 dias úteis`;
+  }
+
+  // Semana
+  const ds = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const semana = Array.from({length:7},(_,i)=>{
+    const d=new Date(); d.setDate(d.getDate()-(6-i));
+    const liq=turnos.filter(t=>t.data===d.toDateString()).reduce((s,t)=>s+t.liq,0);
+    return {label:ds[d.getDay()],liq,isHoje:i===6};
+  });
+  const maxL = Math.max(...semana.map(s=>s.liq),1);
+  $('weekChart').innerHTML = semana.map(s=>{
+    const h = Math.max(4,Math.round(s.liq/maxL*64));
+    const cls = s.isHoje?'today':s.liq>=cfg.meta/26*1.2?'good':s.liq>0&&s.liq>=cfg.meta/26*0.6?'mid':s.liq>0?'low':'';
+    return `<div class="wc"><div class="wv">${s.liq>0?'R$'+s.liq.toFixed(0):''}</div><div class="wb ${cls}" style="height:${h}px"></div><div class="wl">${s.label}</div></div>`;
+  }).join('');
+
+  // Plataformas
+  if(n>=2){
+    const v99=mes.reduce((s,t)=>s+t.r99,0), vU=mes.reduce((s,t)=>s+t.rUber,0), vI=mes.reduce((s,t)=>s+t.rInd,0);
+    const mx=Math.max(v99,vU,vI);
+    $('platSection').style.display='block';
+    $('platRow').innerHTML=`
+      <div class="pb ${v99===mx&&mx>0?'best':''}"><div class="pb-n">99</div><div class="pb-v">${fmt(v99)}</div></div>
+      <div class="pb ${vU===mx&&mx>0?'best':''}"><div class="pb-n">Uber</div><div class="pb-v">${fmt(vU)}</div></div>
+      <div class="pb ${vI===mx&&mx>0?'best':''}"><div class="pb-n">InDrive</div><div class="pb-v">${fmt(vI)}</div></div>`;
+  }
+
+  // Ranking dias
+  if(turnos.length>=5){
+    const map={};
+    turnos.forEach(t=>{const d=DIAS[t.diaSemana];if(!map[d])map[d]={tot:0,n:0};map[d].tot+=t.liq;map[d].n++;});
+    const rank=Object.entries(map).map(([d,v])=>({d,med:v.tot/v.n,n:v.n})).sort((a,b)=>b.med-a.med);
+    $('rankDiaSection').style.display='block';
+    $('rankDiaLista').innerHTML=rank.map((r,i)=>`
+      <div class="rank-item">
+        <div class="rank-pos">${['🥇','🥈','🥉'][i]||i+1}</div>
+        <div class="rank-info"><div class="rank-name">${r.d}</div><div class="rank-sub">${r.n} turnos</div></div>
+        <div class="rank-val">${fmt(r.med)}</div>
+      </div>`).join('');
+  }
+}
+
+// ═══════ GASTOS ═══════
+let tipoSelecionado = 'combustivel';
+
+function selTipo(tipo, btn){
+  tipoSelecionado = tipo;
+  document.querySelectorAll('.gt-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  $('gCombFields').style.display = tipo==='combustivel' ? 'block' : 'none';
+  $('gDescField').style.display  = tipo!=='combustivel' ? 'block' : 'none';
+}
+
+function registrarGasto(){
+  const valor = parseFloat($('gValor').value)||0;
+  const data  = $('gData').value || new Date().toISOString().split('T')[0];
+  if(valor<=0){showToast('Informe o valor','err');return;}
+
+  const g = {id:Date.now(), tipo:tipoSelecionado, data, valor, mesAno:data.slice(0,7)};
+
+  if(tipoSelecionado==='combustivel'){
+    g.litros  = parseFloat($('gLitros').value)||0;
+    g.precoL  = parseFloat($('gPrecoL').value)||0;
+    g.desc    = '⛽ Combustível (álcool)';
+    if(g.precoL>2&&g.precoL<10){ cfg.comb=g.precoL; localStorage.setItem('cfg_t2',JSON.stringify(cfg)); }
+  } else {
+    g.desc = $('gDesc').value || tipoSelecionado;
+  }
+
+  gastos.push(g);
+  localStorage.setItem('gastos_t2', JSON.stringify(gastos));
+  ['gValor','gLitros','gPrecoL','gDesc'].forEach(id=>$(id).value='');
+  renderGastos();
+  showToast('Gasto registrado!','ok');
+}
+
+function renderGastos(){
+  const lista = [...gastos].reverse();
+  if(!lista.length){$('gastoLista').innerHTML='<div class="vazio">Nenhum gasto registrado.</div>';return;}
+  $('gastoLista').innerHTML = lista.map(g=>`
+    <div class="g-hist-item">
+      <div class="ghi-l">
+        <div class="ghi-tipo">${g.tipo}</div>
+        <div class="ghi-desc">${g.desc||g.tipo}${g.litros?` · ${g.litros}L`:''}</div>
+        <div class="ghi-data">${new Date(g.data+'T12:00:00').toLocaleDateString('pt-BR')}</div>
+      </div>
+      <div class="ghi-val">-${fmt(g.valor)}</div>
+    </div>`).join('');
+}
+
+// ═══════ ANÁLISE ═══════
+function renderAnalise(){
+  const mes = turnosMes();
+  const n   = mes.length;
+  const tH  = mes.reduce((s,t)=>s+t.horas,0);
+  const tL  = mes.reduce((s,t)=>s+t.liq,0);
+  const tK  = mes.reduce((s,t)=>s+t.kmRodados,0);
+  const rH  = tH>0 ? tL/tH : 0;
+
+  $('anRHora').textContent   = fmt(rH);
+  $('anRHoraSub').textContent = n>0 ? `${n} turnos · ${fmt(tL)} líquido` : '—';
+  $('anHoras').textContent   = tH.toFixed(1)+'h';
+  $('anKm').textContent      = tK.toFixed(0)+' km';
+
+  if(n>0){
+    const sorted = [...mes].sort((a,b)=>b.rHora-a.rHora);
+    $('anMelhor').textContent = fmt(sorted[0].rHora);
+    $('anPior').textContent   = fmt(sorted[sorted.length-1].rHora);
+  }
+
+  // Ranking dias
+  if(turnos.length>=5){
+    const map={};
+    turnos.forEach(t=>{const d=DIAS[t.diaSemana];if(!map[d])map[d]={tot:0,n:0,h:0};map[d].tot+=t.liq;map[d].n++;map[d].h+=t.horas;});
+    const rank=Object.entries(map).map(([d,v])=>({d,med:v.tot/v.n,rh:v.h>0?v.tot/v.h:0,n:v.n})).sort((a,b)=>b.med-a.med);
+    $('rankDiaAnalise').innerHTML=rank.map((r,i)=>`
+      <div class="rank-item">
+        <div class="rank-pos">${['🥇','🥈','🥉'][i]||i+1}</div>
+        <div class="rank-info"><div class="rank-name">${r.d}</div><div class="rank-sub">${r.n} turnos · ${fmt(r.rh)}/h</div></div>
+        <div class="rank-val">${fmt(r.med)}</div>
+      </div>`).join('');
+  }
+
+  // Ranking plataformas
+  if(mes.length>0){
+    const plats=[
+      {nome:'99',val:mes.reduce((s,t)=>s+t.r99,0)},
+      {nome:'Uber',val:mes.reduce((s,t)=>s+t.rUber,0)},
+      {nome:'InDrive',val:mes.reduce((s,t)=>s+t.rInd,0)},
+    ].filter(p=>p.val>0).sort((a,b)=>b.val-a.val);
+    const tot=plats.reduce((s,p)=>s+p.val,0);
+    $('rankPlatAnalise').innerHTML=plats.map((p,i)=>`
+      <div class="rank-item">
+        <div class="rank-pos">${['🥇','🥈','🥉'][i]||i+1}</div>
+        <div class="rank-info"><div class="rank-name">${p.nome}</div><div class="rank-sub">${tot>0?((p.val/tot)*100).toFixed(0)+'% da receita':''}</div></div>
+        <div class="rank-val">${fmt(p.val)}</div>
+      </div>`).join('');
+  }
+
+  renderManutencao();
+}
+
+// ═══════ MANUTENÇÃO ═══════
+function getKmAtual(){ const f=turnos.map(t=>t.kmFinal).filter(Boolean); return f.length>0?Math.max(...f):0; }
+function atualizarKmManutencao(km){ localStorage.setItem('km_manut',km); }
+function resetManutencao(){
+  const km=getKmAtual();
+  if(!km){showToast('Registre um turno primeiro','warn');return;}
+  MANUT_ITENS.forEach(i=>localStorage.setItem('mr_'+i.chave,km));
+  renderManutencao();
+  showToast('KM de manutenção resetado!','ok');
+}
+
+function renderManutencao(){
+  const kmA = getKmAtual();
+  if(!kmA){$('manutLista').innerHTML='<div class="vazio">Registre turnos para acompanhar manutenção.</div>';return;}
+  $('manutLista').innerHTML = MANUT_ITENS.map(item=>{
+    const kmR = parseFloat(localStorage.getItem('mr_'+item.chave))||0;
+    const desde = kmA - kmR;
+    const pct   = Math.min(100,(desde/item.km)*100);
+    const rest  = Math.max(0, item.km-desde);
+    const cls   = pct>=90?'mb-crit':pct>=70?'mb-warn':'mb-ok';
+    const badge = pct>=90?'TROCAR JÁ':pct>=70?'ATENÇÃO':'OK';
+    const fill  = pct>=90?'var(--red)':pct>=70?'var(--yellow)':'var(--green2)';
+    return `<div class="manut-item">
+      <div class="manut-top"><span class="manut-nome">${item.nome}</span><span class="manut-badge ${cls}">${badge}</span></div>
+      <div class="manut-bar"><div class="manut-fill" style="width:${pct}%;background:${fill}"></div></div>
+      <div class="manut-info"><span>${desde.toFixed(0)} km desde troca</span><span>${rest>0?rest.toFixed(0)+' km restantes':'⚠️ Vencido'}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════ INIT ═══════
+function init(){
+  $('gData').value = new Date().toISOString().split('T')[0];
+
+  // iOS hint
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if(isIOS && !isStandalone) $('iosBar').style.display='block';
+
+  // Restaura turno ativo se houver
+  renderHomeAtivo();
+
+  // KM atual home listener
+  $('kmAtualHome').addEventListener('input', atualizarTimer);
+
+  // Plat inputs
+  ['p99','pUber','pInd'].forEach(id => {
+    $(id).addEventListener('input', calcPlatStep);
+  });
+}
+
+try { init(); } catch(e) { console.error(e); }
+</script>
+</body>
+</html>
